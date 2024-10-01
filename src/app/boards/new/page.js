@@ -25,6 +25,7 @@ import {
   ZipcodeWrapper,
 } from "@/app/styles/boardsNew";
 import { gql, useMutation } from "@apollo/client";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 const CREATE_BOARD = gql`
@@ -42,12 +43,13 @@ export default function BoardsNewPage() {
   const [createBoard] = useMutation(CREATE_BOARD);
   const [writer, setWriter] = useState("");
   const [password, setPassword] = useState("");
-  const [subject, setSubject] = useState("");
-  const [content, setContent] = useState("");
+  const [title, setTitle] = useState("");
+  const [contents, setContents] = useState("");
   const [writerError, setWriterError] = useState(false);
   const [passwordError, setPasswordError] = useState(false);
-  const [subjectError, setSubjectError] = useState(false);
-  const [contentError, setContentError] = useState(false);
+  const [titleError, setTitleError] = useState(false);
+  const [contentsError, setContentsError] = useState(false);
+  const router = useRouter();
 
   const scrollToTop = () => {
     window.scrollTo({
@@ -62,11 +64,11 @@ export default function BoardsNewPage() {
   const onChangPassword = (e) => {
     setPassword(e.target.value);
   };
-  const onChangeSubject = (e) => {
-    setSubject(e.target.value);
+  const onChangeTitle = (e) => {
+    setTitle(e.target.value);
   };
-  const onChangeContent = (e) => {
-    setContent(e.target.value);
+  const onChangeContents = (e) => {
+    setContents(e.target.value);
   };
 
   function validateFormData() {
@@ -76,10 +78,10 @@ export default function BoardsNewPage() {
     if (!password) {
       setPasswordError(true);
     }
-    if (!subject) {
-      setSubjectError(true);
+    if (!title) {
+      setTitleError(true);
     }
-    if (!content) {
+    if (!contents) {
       setContentError(true);
     }
   }
@@ -87,33 +89,39 @@ export default function BoardsNewPage() {
   const submitOnclick = async (e) => {
     setWriterError(false);
     setPasswordError(false);
-    setSubjectError(false);
-    setContentError(false);
+    setTitleError(false);
+    setContentsError(false);
 
     e.preventDefault();
-    if (!writer || !password || !subject || !content) {
+    if (!writer || !password || !title || !contents) {
       validateFormData();
       scrollToTop();
       return;
     }
-    // 모든 입력란에 데이터가 존재할 때 실행
-    const data = await createBoard({
-      variables: {
-        createBoardInput: {
-          writer: writer,
-          password: password,
-          title: subject,
-          contents: content,
+    try {
+      // 모든 입력란에 데이터가 존재할 때 실행
+      const result = await createBoard({
+        variables: {
+          createBoardInput: {
+            writer,
+            password,
+            title,
+            contents,
+          },
         },
-      },
-    });
-    // 입력 필드 초기화
-    setWriter("");
-    setPassword("");
-    setSubject("");
-    setContent("");
-    alert("게시글이 등록되었습니다."); // 모든 필드가 유효할 경우 알림
-    console.log(data);
+      });
+      // 입력 필드 초기화
+      setWriter("");
+      setPassword("");
+      setTitle("");
+      setContents("");
+      alert("게시글이 등록되었습니다."); // 모든 필드가 유효할 경우 알림
+      console.log(result.data);
+
+      router.push(`/boards/detail/${result.data.createBoard._id}`);
+    } catch (error) {
+      alert(error.message);
+    }
   };
 
   return (
@@ -146,19 +154,19 @@ export default function BoardsNewPage() {
         <Subject
           type="text"
           placeholder="제목을 작성해주세요."
-          value={subject}
-          onChange={onChangeSubject}
+          value={title}
+          onChange={onChangeTitle}
         />
-        {subjectError && <ErrorText>제목을 입력해 주세요.</ErrorText>}
+        {titleError && <ErrorText>제목을 입력해 주세요.</ErrorText>}
       </InputWrapper>
       <InputWrapper>
         <Label>내용</Label>
         <Contents
           placeholder="내용을 작성해주세요."
-          value={content}
-          onChange={onChangeContent}
+          value={contents}
+          onChange={onChangeContents}
         />
-        {contentError && <ErrorText>내용을 입력해 주세요.</ErrorText>}
+        {contentsError && <ErrorText>내용을 입력해 주세요.</ErrorText>}
       </InputWrapper>
       <InputWrapper>
         <Label>주소</Label>
