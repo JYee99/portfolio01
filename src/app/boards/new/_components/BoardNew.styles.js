@@ -165,12 +165,12 @@ export const SubmitButton = styled.button`
   margin-right: 12px;
   cursor: pointer;
 
-  background-color: yellow;
+  background-color: ${(props) => (props.isActive ? "yellow" : "")};
 `;
 
 export const ErrorText = styled.p`
-    color: #f35071;
-    font-weight: 500;
-    font-size: 14px;
-    margin-bottom: 20px;
-`
+  color: #f35071;
+  font-weight: 500;
+  font-size: 14px;
+  margin-bottom: 20px;
+`;
